@@ -1,3 +1,4 @@
+from expenses_entities import Expense
 from expenses_persistence import ExpenseRepositoryImplementation as Repository
 from pymysql import MySQLError
 
@@ -15,6 +16,9 @@ def handler(event, context):
     secret_key = os.environ['SECRET_KEY']
 
     id = event['pathParameters']['id']
+    token = event['Authorization'].split(' ')[1]
+    token_data = jwt.decode(jwt=token, key=secret_key, algorithms=['HS256'])
+    user_id = token_data.get('user_id')
 
     try:
         record = Repository(
@@ -23,16 +27,18 @@ def handler(event, context):
             password=password,
             db_port=int(db_port),
             db_name=db_name
-        ).get(int(id))
+        ).get_by(user_id=user_id, expense_id=id)
+
+        if record is None:
+            raise Exception(f'Entity with id {id} not found')
+        if len(record) > 1:
+            raise Exception(f'More than one entity with id {id} found')
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
+    finally:
+        record.__del__()
 
-    if record is None:
-        raise Exception(f'Entity with id {id} not found')
-
-    expense = record.get_dict()
+    expense: Expense = record[0].get_dict()
 
     for key in expense.keys():
         if isinstance(expense[key], datetime.datetime):
