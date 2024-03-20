@@ -40,9 +40,7 @@ def handler(event, context):
         deleted = repo.delete(int(id))
 
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
 
     finally:
         repo.__del__()
