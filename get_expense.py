@@ -20,14 +20,16 @@ def handler(event, context):
     token_data = jwt.decode(jwt=token, key=secret_key, algorithms=['HS256'])
     user_id = token_data.get('user_id')
 
+    repo = Repository(
+        host=rds_host,
+        user=name,
+        password=password,
+        db_port=int(db_port),
+        db_name=db_name
+    )
+
     try:
-        record = Repository(
-            host=rds_host,
-            user=name,
-            password=password,
-            db_port=int(db_port),
-            db_name=db_name
-        ).get_by(user_id=user_id, expense_id=id)
+        record = repo.get_by(user_id=user_id, expense_id=id)
 
         if record is None:
             raise Exception(f'Entity with id {id} not found')
