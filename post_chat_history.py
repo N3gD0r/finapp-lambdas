@@ -21,6 +21,7 @@ def handler(event, context):
 
     chat_history = ChatHistory(
         chat_message=body['message'],
+        role=body['role'],
         user_id=user_id
     )
 
