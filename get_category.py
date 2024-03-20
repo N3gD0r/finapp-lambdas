@@ -15,17 +15,18 @@ def handler(event, context):
     id = event['pathParameters']['id']
 
     try:
-        record = Repository(
+        repo = Repository(
             host=rds_host,
             user=name,
             password=password,
             db_name=db_name,
             db_port=int(db_port)
-        ).get(int(id))
+        )
+        record = repo.get(int(id))
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
+    finally:
+        repo.__del__()
 
     if record is None:
         raise Exception(f'Entity with id {id} not found')
