@@ -16,9 +16,6 @@ def handler(event, context):
 
     id = event['pathParameters']['id']
 
-    token = event['Authorization'].split(' ')[1]
-    
-
     try:
         record = Repository(
             host=rds_host,
