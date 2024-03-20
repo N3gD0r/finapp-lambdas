@@ -20,15 +20,14 @@ def handler(event, context):
     token_data = jwt.decode(jwt=token, key=secret_key, algorithms=['HS256'])
     user_id = token_data.get('user_id')
 
-    repo = Repository(
-        host=rds_host,
-        user=name,
-        password=password,
-        db_port=int(db_port),
-        db_name=db_name
-    )
-
     try:
+        repo = Repository(
+            host=rds_host,
+            user=name,
+            password=password,
+            db_port=int(db_port),
+            db_name=db_name
+        )
         record = repo.get_by(user_id=user_id, expense_id=id)
 
         if record is None:
@@ -38,7 +37,7 @@ def handler(event, context):
     except MySQLError:
         raise Exception('Internal server error')
     finally:
-        record.__del__()
+        repo.__del__()
 
     expense: Expense = record[0].get_dict()
 
