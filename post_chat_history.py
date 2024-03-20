@@ -17,10 +17,10 @@ def handler(event, context):
     token = event['Authorization'].split(' ')[1]
     token_data = jwt.decode(token, secret_key, algorithms=["HS256"])
     user_id = token_data.get('user_id')
-    body: dict = event['chat_history']
+    body: dict = event['chat']
 
     chat_history = ChatHistory(
-        chat_message=body['chat_message'],
+        chat_message=body['message'],
         user_id=user_id
     )
 
