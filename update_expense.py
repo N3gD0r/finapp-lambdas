@@ -50,9 +50,7 @@ def handler(event, context):
 
         updated = repo.update(int(id), entity)
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
     finally:
         repo.__del__()
 
