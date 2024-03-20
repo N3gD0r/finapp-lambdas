@@ -29,7 +29,7 @@ def handler(event, context):
             db_port=int(db_port),
             db_name=db_name
         )
-        record = repo.get_by(user_id=user_id)
+        records = repo.get_by(user_id=user_id)
     except MySQLError:
         raise Exception('Internal server error')
     finally:
