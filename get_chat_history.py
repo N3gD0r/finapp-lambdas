@@ -22,23 +22,26 @@ def handler(event, context):
     user_id = token_data.get('user_id')
 
     try:
-        records = Repository(
+        repo = Repository(
             host=rds_host,
             user=name,
             password=password,
             db_port=int(db_port),
             db_name=db_name
-        ).get_by(user_id=user_id)
+        )
+        record = repo.get_by(user_id=user_id)
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
+    finally:
+        repo.__del__()
 
     if records is None:
         return {
             'chat_history': []
         }
+
     chats = [chat.get_dict() for chat in records]
+
     for chat in chats:
         for key in chat.keys():
             if isinstance(chat[key], datetime.datetime):
