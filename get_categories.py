@@ -13,17 +13,18 @@ def handler(event, context):
     db_port = os.environ['RDS_PORT']
 
     try:
-        records = Repository(
+        repo = Repository(
             host=rds_host,
             user=name,
             password=password,
             db_name=db_name,
             db_port=int(db_port)
-        ).get_all()
+        )
+        records = repo.get_all()
     except MySQLError:
-        return {
-            'error': 'Internal server error'
-        }
+        raise Exception('Internal server error')
+    finally:
+        repo.__del__()
 
     if records is None:
         return {
