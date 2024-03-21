@@ -7,6 +7,18 @@ import jwt
 import os
 
 
+class ChatDto:
+    def __init__(self, chat: ChatHistory):
+        self.content = chat.chat_message
+        self.role = chat.role
+
+    def get_dict(self):
+        return {
+            'content': self.content,
+            'role': self.role
+        }
+
+
 def handler(event, context):
     rds_host = os.environ['RDS_HOST']
     name = os.environ['RDS_USERNAME']
@@ -40,12 +52,7 @@ def handler(event, context):
             'chat_history': []
         }
 
-    chats = [chat.get_dict() for chat in records]
-
-    for chat in chats:
-        for key in chat.keys():
-            if isinstance(chat[key], datetime.datetime):
-                chat[key] = chat[key].strftime('%Y-%m-%d %H:%M:%S')
+    chats = [ChatDto(chat).get_dict() for chat in records]
 
     return {
         'chat_history': chats
