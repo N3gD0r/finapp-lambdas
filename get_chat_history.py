@@ -37,7 +37,7 @@ def handler(event, context):
 
     if records is None:
         return {
-            'chat_history': []
+            'chats': []
         }
 
     chats = [chat.get_dict() for chat in records]
@@ -48,6 +48,6 @@ def handler(event, context):
                 chat[key] = chat[key].strftime('%Y-%m-%d %H:%M:%S')
 
     return {
-        'chat_history': chats
+        'chats': chats
     }
 

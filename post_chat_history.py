@@ -20,8 +20,8 @@ def handler(event, context):
     body: dict = event['chat']
 
     chat_history = ChatHistory(
-        chat_message=body['message'],
-        role=body['role'],
+        chat_message=body['content'],
+        role=body['role_id'],
         user_id=user_id
     )
 
