@@ -17,13 +17,9 @@ def handler(event, context):
     token = event['Authorization'].split(' ')[1]
     token_data = jwt.decode(token, secret_key, algorithms=["HS256"])
     user_id = token_data.get('user_id')
-    body: dict = event['chat']
+    body: dict = event['chats']
 
-    chat_history = ChatHistory(
-        chat_message=body['content'],
-        role=body['role_id'],
-        user_id=user_id
-    )
+    chats: list[ChatHistory] = [ChatHistory(user_id=user_id, **chat) for chat in body['chats']]
 
     try:
         repo = Repository(
@@ -33,13 +29,13 @@ def handler(event, context):
             password=password,
             db_name=db_name
         )
-        chat_id = repo.add(chat_history)
+        rows = repo.add_batch(entities=chats)
     except MySQLError:
         raise Exception('Internal server error')
     finally:
         repo.__del__()
 
     return {
-        'chat_id': chat_id
+        'chats_added': rows
     }
 
