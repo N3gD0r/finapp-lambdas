@@ -1,3 +1,4 @@
+from db_auth import get_credentials
 from expenses_entities import ChatHistory
 from expenses_persistence import ChatHistoryRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -8,11 +9,11 @@ import os
 
 def handler(event, context):
     rds_host = os.environ['RDS_HOST']
-    name = os.environ['RDS_USERNAME']
-    password = os.environ['RDS_PASSWORD']
     db_name = os.environ['RDS_DB_NAME']
     db_port = os.environ['RDS_PORT']
     secret_key = os.environ['SECRET_KEY']
+    secret_name = os.environ['SECRETS_NAME']
+    creds = get_credentials(secret_name)
 
     token = event['Authorization'].split(' ')[1]
     token_data = jwt.decode(token, secret_key, algorithms=["HS256"])
@@ -25,8 +26,8 @@ def handler(event, context):
         repo = Repository(
             host=rds_host,
             db_port=int(db_port),
-            user=name,
-            password=password,
+            user=creds['username'],
+            password=creds['password'],
             db_name=db_name
         )
         rows = repo.add_batch(entities=chats)
