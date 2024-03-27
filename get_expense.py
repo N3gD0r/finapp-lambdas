@@ -1,3 +1,4 @@
+from db_auth import get_credentials
 from expenses_entities import Expense
 from expenses_persistence import ExpenseRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -9,11 +10,11 @@ import os
 
 def handler(event, context):
     rds_host = os.environ['RDS_HOST']
-    name = os.environ['RDS_USERNAME']
-    password = os.environ['RDS_PASSWORD']
     db_name = os.environ['RDS_DB_NAME']
     db_port = os.environ['RDS_PORT']
     secret_key = os.environ['SECRET_KEY']
+    secret_name = os.environ['SECRETS_NAME']
+    creds = get_credentials(secret_name)
 
     id = event['pathParameters']['id']
     token = event['Authorization'].split(' ')[1]
@@ -23,8 +24,8 @@ def handler(event, context):
     try:
         repo = Repository(
             host=rds_host,
-            user=name,
-            password=password,
+            user=creds['username'],
+            password=creds['password'],
             db_port=int(db_port),
             db_name=db_name
         )
