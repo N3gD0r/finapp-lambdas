@@ -12,10 +12,8 @@ def handler(event, context):
     db_name = os.environ['RDS_DB_NAME']
     db_port = os.environ['RDS_PORT']
     secret_key = os.environ['SECRET_KEY']
-
     secret_name = os.environ['SECRETS_NAME']
-
-    credentials = get_credentials(secret_name)
+    creds = get_credentials(secret_name)
 
     token = event['Authorization'].split(' ')[1]
     token_data = jwt.decode(token, secret_key, algorithms=["HS256"])
@@ -24,8 +22,8 @@ def handler(event, context):
     try:
         repo = Repository(
             host=rds_host,
-            user=credentials['username'],
-            password=credentials['password'],
+            user=creds['username'],
+            password=creds['password'],
             db_port=int(db_port),
             db_name=db_name
         )
