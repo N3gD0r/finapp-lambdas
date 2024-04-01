@@ -8,18 +8,6 @@ import jwt
 import os
 
 
-class ChatDto:
-    def __init__(self, chat: ChatHistory):
-        self.content = chat.chat_message
-        self.role = chat.role
-
-    def get_dict(self):
-        return {
-            'content': self.content,
-            'role': self.role
-        }
-
-
 def handler(event, context):
     rds_host = os.environ['RDS_HOST']
     db_name = os.environ['RDS_DB_NAME']
@@ -29,9 +17,7 @@ def handler(event, context):
     creds = get_credentials(secret_name)
 
     token = event['Authorization'].split(' ')[1]
-
     token_data = jwt.decode(token, secret_key, algorithms=["HS256"])
-
     user_id = token_data.get('user_id')
 
     try:
@@ -53,7 +39,12 @@ def handler(event, context):
             'chats': []
         }
 
-    chats = [ChatDto(chat).get_dict() for chat in records]
+    chats = [chat.get_dict() for chat in records]
+
+    for chat in chats:
+        for key in chat.keys():
+            if isinstance(chat[key], datetime.datetime):
+                chat[key] = chat[key].strftime('%Y-%m-%d %H:%M:%S')
 
     return {
         'chats': chats
