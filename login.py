@@ -1,4 +1,4 @@
-from db_auth import get_credentials
+from load_secrets import get_secrets
 from expenses_entities import User
 from expenses_persistence import UserRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -10,12 +10,14 @@ import os
 
 
 def handler(event, context):
-    rds_host = os.environ['RDS_HOST']
-    db_port = os.environ['RDS_PORT']
-    db_name = os.environ['RDS_DB_NAME']
-    secret_key = os.environ['SECRET_KEY']
     secret_name = os.environ['SECRETS_NAME']
-    creds = get_credentials(secret_name)
+    secrets = get_secrets(secret_name)
+    db_name = 'expenses'
+    db_host = secrets.get('db_host')
+    db_port = secrets.get('db_port')
+    db_user = secrets.get('username')
+    db_password = secrets.get('password')
+    secret_key = secrets.get('jwt_key')
 
     username = event['username']
     user_passwd = event['password'].encode('utf-8')
@@ -24,9 +26,9 @@ def handler(event, context):
         check_user = Repository(
             db_name=db_name,
             db_port=int(db_port),
-            host=rds_host,
-            password=creds['password'],
-            user=creds['username']
+            host=db_host,
+            password=db_password,
+            user=db_user
         ).get_by(username=username)
     except MySQLError:
         return {
@@ -51,7 +53,6 @@ def handler(event, context):
 
     payload = {
         'user_id': user.user_id,
-        'username': username,
         'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1)
     }
 
