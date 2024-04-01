@@ -1,4 +1,4 @@
-from db_auth import get_credentials
+from load_secrets import get_secrets
 from expenses_persistence import ExpenseCategoriesRepositoryImplementation as Repository
 from pymysql import MySQLError
 
@@ -7,19 +7,21 @@ import os
 
 
 def handler(event, context):
-    rds_host = os.environ['RDS_HOST']
-    db_name = os.environ['RDS_DB_NAME']
-    db_port = os.environ['RDS_PORT']
     secret_name = os.environ['SECRETS_NAME']
-    creds = get_credentials(secret_name)
+    secrets = get_secrets(secret_name)
+    db_name = 'expenses'
+    db_host = secrets.get('db_host')
+    db_port = secrets.get('db_port')
+    db_user = secrets.get('username')
+    db_password = secrets.get('password')
 
     id = event['pathParameters']['id']
 
     try:
         repo = Repository(
-            host=rds_host,
-            user=creds['username'],
-            password=creds['password'],
+            host=db_host,
+            user=db_user,
+            password=db_password,
             db_name=db_name,
             db_port=int(db_port)
         )
