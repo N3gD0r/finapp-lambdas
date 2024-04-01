@@ -1,3 +1,4 @@
+from db_auth import get_credentials
 from expenses_entities import User
 from expenses_persistence import UserRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -10,11 +11,11 @@ import os
 
 def handler(event, context):
     rds_host = os.environ['RDS_HOST']
-    name = os.environ['RDS_USERNAME']
     db_port = os.environ['RDS_PORT']
     db_name = os.environ['RDS_DB_NAME']
-    password = os.environ['RDS_PASSWORD']
     secret_key = os.environ['SECRET_KEY']
+    secret_name = os.environ['SECRETS_NAME']
+    creds = get_credentials(secret_name)
 
     username = event['username']
     user_passwd = event['password'].encode('utf-8')
@@ -24,8 +25,8 @@ def handler(event, context):
             db_name=db_name,
             db_port=int(db_port),
             host=rds_host,
-            password=password,
-            user=name
+            password=creds['password'],
+            user=creds['username']
         ).get_by(username=username)
     except MySQLError:
         return {
