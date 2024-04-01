@@ -1,4 +1,4 @@
-from db_auth import get_credentials
+from load_secrets import get_secrets
 from expenses_entities import Expense
 from expenses_persistence import ExpenseRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -8,12 +8,14 @@ import os
 
 
 def handler(event, context):
-    rds_host = os.environ['RDS_HOST']
-    db_name = os.environ['RDS_DB_NAME']
-    db_port = os.environ['RDS_PORT']
-    secret_key = os.environ['SECRET_KEY']
     secret_name = os.environ['SECRETS_NAME']
-    creds = get_credentials(secret_name)
+    secrets = get_secrets(secret_name)
+    db_name = "expenses"
+    db_host = secrets.get('db_host')
+    db_port = secrets.get('db_port')
+    db_user = secrets.get('username')
+    db_password = secrets.get('password')
+    secret_key = secrets.get('jwt_key')
 
     body: dict = event['expense']
     id = event['pathParameters']['id']
@@ -31,10 +33,10 @@ def handler(event, context):
 
     try:
         repo = Repository(
-            host=rds_host,
+            host=db_host,
             db_port=int(db_port),
-            user=creds['username'],
-            password=creds['password'],
+            user=db_user,
+            password=db_password,
             db_name=db_name
         )
         expense_by_user = repo.get_by(user_id=user_id, expense_id=id)
