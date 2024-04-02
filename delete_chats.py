@@ -10,7 +10,7 @@ import os
 def handler(event, context):
     secret_name = os.environ['SECRETS_NAME']
     secrets = get_secrets(secret_name)
-    db_name = 'chat_history'
+    db_name = 'chats'
     db_host = secrets.get('db_host')
     db_port = secrets.get('db_port')
     db_user = secrets.get('username')
