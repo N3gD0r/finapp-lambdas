@@ -28,12 +28,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          
       - name: Check if S3 bucket exists
         id: check_bucket
         run: |
-          aws s3 ls s3://${{ env.S3_BUCKET }} >/dev/null 2>&1
-          echo "::set-output name=exists::$(test $? -eq 0 && echo true || echo false)"
+          if aws s3 ls s3://${{ env.S3_BUCKET }} >/dev/null 2>&1; then
+          echo "::set-output name=exists::true"
+          else
+          echo "::set-output name=exists::false"
+          fi
           
       - name: Create S3 bucket if it does not exist
         if: steps.check_bucket.outputs.exists == 'false'
