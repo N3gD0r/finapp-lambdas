@@ -54,7 +54,11 @@ jobs:
 
       - name: Upload lambda artifacts to S3
         run: |
-          aws s3 sync artifacts/"$SHA" s3://$S3_BUCKET
+          aws s3api put-object --bucket $S3_BUCKET --key "$SHA"/
+          aws s3 sync artifacts/"$SHA" s3://$S3_BUCKET/"$SHA"
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
           S3_BUCKET: ${{ env.S3_BUCKET }}
           SHA: ${{ steps.commit_sha.outputs.SHA }}
