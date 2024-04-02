@@ -1,6 +1,4 @@
-# This workflow will zip and push a new lambda images to Amazon S3,
-#
-name: Build and push new lamda images to AWS S3
+name: Build and push new lambda images to AWS S3
 
 on:
   push:
@@ -9,6 +7,7 @@ on:
 env:
   AWS_REGION: us-east-1
   S3_BUCKET: finapp-lambdas
+
 jobs:
   deploy:
     name: Deploy
@@ -18,6 +17,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Get commit SHA
         id: commit_sha
         run: echo "::set-output name=SHA::$(echo $GITHUB_SHA | cut -c1-7)"
@@ -29,14 +29,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           
-#      - name: Set up Python
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: '3.x' # Selecciona la versión de Python que necesites
-      - name: Get commit SHA
-        id: commit_sha
-        run: echo "::set-output name=SHA::$(echo $GITHUB_SHA | cut -c1-7)"
-
       - name: Create lambda artifacts
         run: |
           echo "Creating artifact folder"
