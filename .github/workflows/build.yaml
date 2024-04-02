@@ -29,6 +29,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           
+      - name: Check if S3 bucket exists
+        id: check_bucket
+        run: |
+          aws s3 ls s3://${{ env.S3_BUCKET }} >/dev/null 2>&1
+          echo "::set-output name=exists::$(test $? -eq 0 && echo true || echo false)"
+          
+      - name: Create S3 bucket if it does not exist
+        if: steps.check_bucket.outputs.exists == 'false'
+        run: |
+          aws s3 mb s3://${{ env.S3_BUCKET }} --region ${{ env.AWS_REGION }}
+
       - name: Create lambda artifacts
         run: |
           echo "Creating artifact folder"
