@@ -45,17 +45,17 @@ jobs:
       - name: Create lambda artifacts
         run: |
           echo "Creating artifact folder"
-          mkdir "$SHA"
+          mkdir artifacts/"$SHA"
           lambda_layers=$(find "." -maxdepth 1 -type f -name "*.py" | sed 's/\.py$//')
           for loop in $lambda_layers
           do
-          zip "$SHA"/"$loop".zip $loop.py
+          zip artifacts/"$SHA"/"$loop".zip $loop.py
           done
 
       - name: Upload lambda artifacts to S3
         run: |
           aws s3api put-object --bucket $S3_BUCKET --key "$SHA"/
-          aws s3 sync "$SHA" s3://$S3_BUCKET/"$SHA"
+          aws s3 sync artifacts/"$SHA" s3://$S3_BUCKET/"$SHA"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
