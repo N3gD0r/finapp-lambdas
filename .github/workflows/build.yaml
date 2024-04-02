@@ -1,0 +1,55 @@
+# This workflow will zip and push a new lambda images to Amazon S3,
+#
+name: Build and push new lamda images to AWS S3
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: finapp-lambdas
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get commit SHA
+        id: commit_sha
+        run: echo "::set-output name=SHA::$(echo $GITHUB_SHA | cut -c1-7)"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+#      - name: Set up Python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.x' # Selecciona la versión de Python que necesites
+      - name: Get commit SHA
+        id: commit_sha
+        run: echo "::set-output name=SHA::$(echo $GITHUB_SHA | cut -c1-7)"
+
+      - name: Create lambda artifacts
+        run: |
+          echo "Creating artifact folder"
+          mkdir artifacts/"$SHA"
+          lambda_layers=$(find "." -maxdepth 1 -type f -name "*.py" | sed 's/\.py$//')
+          for loop in $lambda_layers
+          do
+          zip artifacts/"$SHA"/"$loop".zip $loop.py
+          done
+
+      - name: Upload lambda artifacts to S3
+        run: |
+          aws s3 sync artifacts/"$SHA" s3://$S3_BUCKET
+        env:
+          S3_BUCKET: ${{ env.S3_BUCKET }}
+          SHA: ${{ steps.commit_sha.outputs.SHA }}
