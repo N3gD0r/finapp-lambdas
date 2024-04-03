@@ -63,3 +63,10 @@ jobs:
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
           S3_BUCKET: ${{ env.S3_BUCKET }}
           SHA: ${{ steps.commit_sha.outputs.SHA }}
+      - name: Create layers folder in S3 bucket
+        run: aws s3api put-object --bucket $S3_BUCKET --key layers/
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+          S3_BUCKET: ${{ env.S3_BUCKET }}
