@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  S3_BUCKET: finapp-lambdas
+  S3_BUCKET: finapp-lambdas-dev
 
 jobs:
   deploy:
