@@ -50,6 +50,7 @@ jobs:
           for loop in $lambda_layers
           do
           zip artifacts/"$SHA"/"$loop".zip $loop.py
+          ls -la artifacts
           done
 
       - name: Upload lambda artifacts to S3
