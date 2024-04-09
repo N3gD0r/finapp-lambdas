@@ -6,3 +6,7 @@
 	path = entities
 	url = git@github.com:davidhernandezmorones/expenses_entities.git
 	branch = main
+[submodule "persistence"]
+	path = persistence
+	url = git@github.com:davidhernandezmorones/expenses_persistence.git
+	branch = main
