@@ -27,6 +27,8 @@ ENV = {
     "JWT_SECRET": os.getenv("JWT_SECRET")
 }
 
+S3_BUCKET = f'arn:aws:s3:::{os.getenv("BUCKET")}'
+
 
 def main():
     secrets_policy = aws.iam.Policy(
@@ -65,12 +67,13 @@ def main():
         resource_name="lambda-layer",
         layer_name="ai-budget-layer",
         description="Deps for lambda function endpoints in ai budget api",
-        code=pulumi.FileArchive("../layers/lambda_layers.zip"),
         compatible_runtimes=["python3.12"],
-        compatible_architectures=["x86_64"]
+        compatible_architectures=["x86_64"],
+        s3_bucket=S3_BUCKET,
+        skip_destroy=False
     )
 
-    lambdas = []
+    lambdas = {}
     for script in SCRIPTS:
         name = script[:-3]
         func = aws.lambda_.Function(
@@ -85,11 +88,13 @@ def main():
                 variables=ENV
             )
         )
-        lambdas.append(func)
+        lambdas[name] = func.arn
 
-    for func in lambdas:
-        pulumi.export(func.name, func.arn)
-
+    pulumi.export("lambdas", lambdas)
     pulumi.export("layer", lambda_layer.arn)
     pulumi.export("role", role.arn)
+
+
+if __name__ == '__main__.py':
+    main()
 
