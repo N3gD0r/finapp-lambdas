@@ -2,3 +2,7 @@
 	path = load_secrets
 	url = git@github.com:davidhernandezmorones/load_secrets.git
 	branch = feat-load-env
+[submodule "entities"]
+	path = entities
+	url = git@github.com:davidhernandezmorones/expenses_entities.git
+	branch = main
