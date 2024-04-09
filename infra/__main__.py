@@ -95,6 +95,8 @@ def main():
     pulumi.export("layer", lambda_layer.arn)
     pulumi.export("role", role.arn)
 
+    return lambdas, lambda_layer, role
+
 
 if __name__ == '__main__.py':
     main()
