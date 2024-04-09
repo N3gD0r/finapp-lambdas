@@ -28,7 +28,7 @@ ENV = {
     "JWT_SECRET": os.getenv("JWT_SECRET")
 }
 
-S3_BUCKET = f'arn:aws:s3:::{os.getenv("BUCKET")}'
+S3_BUCKET = os.getenv("BUCKET")
 
 S3_KEY = os.getenv('S3_KEY')
 
