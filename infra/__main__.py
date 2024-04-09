@@ -18,6 +18,15 @@ SCRIPTS = [
     "../login.py"
 ]
 
+ENV = {
+    "DB_USER": os.getenv("DB_USER"),
+    "DB_PASSWORD": os.getenv("DB_PASSWORD"),
+    "DB_HOST": os.getenv("DB_HOST"),
+    "DB_PORT": os.getenv("DB_PORT"),
+    "DB_NAME": os.getenv("DB_NAME"),
+    "JWT_SECRET": os.getenv("JWT_SECRET")
+}
+
 
 def main():
     secrets_policy = aws.iam.Policy(
@@ -73,14 +82,7 @@ def main():
             code=pulumi.FileArchive(script),
             layers=[lambda_layer.arn],
             environment=aws.lambda_.FunctionEnvironmentArgs(
-                variables={
-                    "DB_HOST": None,
-                    "DB_USER": None,
-                    "DB_PASSWORD": None,
-                    "DB_NAME": None,
-                    "DB_PORT": None,
-                    "JWT_SECRET": None,
-                }
+                variables=ENV
             )
         )
         lambdas.append(func)

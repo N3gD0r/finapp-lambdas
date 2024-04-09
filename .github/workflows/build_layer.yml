@@ -5,15 +5,10 @@ on:
   push:
     branches:
       - feat-pulumi-lambdas
-      - feat-submodules-layer
     paths:
-      - "entities/**/*.py"
-      - "persistence/**/*.py"
-      - "load_secrets/**/*.py"
-  pull_request:
-    branches:
-      - feat-pulumi-lambdas
-      - feat-submodules-layer
+      - "entities/**"
+      - "persistence/**"
+      - "load_secrets/**"
 
 jobs:
   build:

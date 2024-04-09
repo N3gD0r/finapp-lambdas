@@ -1,4 +1,4 @@
-from load_secrets import get_secrets
+from load_secrets import get_env
 from expenses_entities import ChatHistory
 from expenses_persistence import ChatHistoryRepositoryImplementation as Repository
 from pymysql import MySQLError
@@ -8,8 +8,7 @@ import os
 
 
 def handler(event, context):
-    secret_name = os.environ['SECRETS_NAME']
-    secrets = get_secrets(secret_name)
+    secrets = get_env()
     db_name = 'chats'
     db_host = secrets.get('db_host')
     db_port = secrets.get('db_port')
