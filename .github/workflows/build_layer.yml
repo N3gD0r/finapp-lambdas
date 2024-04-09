@@ -48,13 +48,18 @@ jobs:
 
       - name: Build lambda layer
         run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install pymysql cryptography
           python -m pip install entities/dist/*.tar.gz
           python -m pip install persistence/dist/*.tar.gz
           python -m pip install load_secrets/dist/*.tar.gz
-          mkdir python
-          cp -r "${Python3_ROOT_DIR}/lib/python3.12/site-packages" python
-          rm -rf python/pip* python/boto3*
-          zip -r python.zip python
+          cp -r venv/lib/python3.12/site-packages python
+          rm -rf python/pip*
+          zip -r python.zip python >/dev/null 2>&1
+          echo "Lambda layer contents"
+          unzip -l python.zip
 
       - name: Setup aws
         uses: aws-actions/configure-aws-credentials@v4
