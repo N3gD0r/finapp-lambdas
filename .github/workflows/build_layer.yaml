@@ -1,6 +1,17 @@
 on:
+  workflow_dispatch:
   push:
-    branches: [ 'feat-pulumi-lambdas' ]
+    branches:
+      - feat-pulumi-lambdas
+      - feat-submodules-layer
+    paths:
+      - "entities/**/*.py"
+      - "persistence/**/*.py"
+      - "load_secrets/**/*.py"
+  pull_request:
+    branches:
+      - feat-pulumi-lambdas
+      - feat-submodules-layer
 
 jobs:
   build:
