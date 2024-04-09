@@ -1,0 +1,59 @@
+on:
+  push:
+    branches: [ 'feat-pulumi-lambdas' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build entities layer
+        run: |
+          cd entities/
+          python -m pip install -r requirements.txt
+          python -m build .
+
+      - name: Build persistence layer
+        run: |
+          cd ../persistence/
+          python -m pip install -r requirements.txt
+          python -m build .
+
+      - name: Build secrets layer
+        run: |
+          cd ../load_secrets/
+          python -m pip install -r requirements.txt
+          python -m build .
+
+      - name: Build lambda layer
+        run: |
+          cd ..
+          mkdir python
+          cp -r /usr/lib/python3.12/site-packages python/
+          rm -rf python/pip* python/boto3*
+          zip -r python.zip python
+
+      - name: Setup aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create S3 bucket if it does not exist
+        run: |
+          aws s3 ls s3://${{ secrets.S3_BUCKET }} >/dev/null 2>&1 || aws s3 mb s3://${{ secrets.S3_BUCKET }} --region us-east-1
+
+      - name: Upload lambda layer to S3
+        run: |
+          aws s3 cp python.zip s3://${{ secrets.S3_BUCKET }}/python.zip
+
