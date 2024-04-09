@@ -1,3 +1,5 @@
+name: Build lambda layer from git submodules python packages
+
 on:
   workflow_dispatch:
   push:
