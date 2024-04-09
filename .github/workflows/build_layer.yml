@@ -28,30 +28,31 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
 
       - name: Build entities layer
         run: |
-          cd entities/
-          python -m pip install -r requirements.txt
-          python -m build .
+          python -m pip install -r entities/requirements.txt
+          python -m build entities
 
       - name: Build persistence layer
         run: |
-          cd ../persistence/
-          python -m pip install -r requirements.txt
-          python -m build .
+          python -m pip install -r persistence/requirements.txt
+          python -m build persistence
 
       - name: Build secrets layer
         run: |
-          cd ../load_secrets/
-          python -m pip install -r requirements.txt
-          python -m build .
+          python -m pip install -r load_secrets/requirements.txt
+          python -m build load_secrets
 
       - name: Build lambda layer
         run: |
-          cd ..
+          python -m pip install entities/dist/*.tar.gz
+          python -m pip install persistence/dist/*.tar.gz
+          python -m pip install load_secrets/dist/*.tar.gz
           mkdir python
-          cp -r /usr/lib/python3.12/site-packages python/
+          cp -r "${Python3_ROOT_DIR}/lib/python3.12/site-packages" python
           rm -rf python/pip* python/boto3*
           zip -r python.zip python
 
