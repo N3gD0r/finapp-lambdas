@@ -28,10 +28,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - id: check_bucket
+      - id: get_bucket
         name: Get bucket
         run: |
-          aws s3 ls s3://${{ secrets.S3_BUCKET }} >/dev/null 2>&1
+          set -e
+          bucket_key=$(aws s3api list-objects-v2 --bucket ai-budget-bucket-layer --query 'Contents[].[Key]' --output text)
+          echo "bucket_object=$bucket_key" >> "$GITHUB_OUTPUT"
 
       - name: Install deps
         run: |
@@ -46,6 +48,7 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_KEY: ${{ steps.get_bucket.outputs.bucket_object}}
         with:
           command: up
           stack-name: dev

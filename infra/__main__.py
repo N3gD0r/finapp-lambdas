@@ -30,6 +30,8 @@ ENV = {
 
 S3_BUCKET = f'arn:aws:s3:::{os.getenv("BUCKET")}'
 
+S3_KEY = os.getenv('S3_KEY')
+
 
 def main():
     secrets_policy = aws.iam.Policy(
@@ -71,6 +73,7 @@ def main():
         compatible_runtimes=["python3.12"],
         compatible_architectures=["x86_64"],
         s3_bucket=S3_BUCKET,
+        s3_key=S3_KEY,
         skip_destroy=False
     )
 
