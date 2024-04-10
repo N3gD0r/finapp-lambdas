@@ -49,6 +49,12 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           BUCKET: ${{ secrets.S3_BUCKET }}
           S3_KEY: ${{ steps.get_bucket.outputs.bucket_object}}
+          DB_USER: ${{ secrets.DBU }}
+          DB_PASSWORD: ${{ secrets.DBP }}
+          DB_HOST: ${{ secrets.DB_H }}
+          DB_PORT: ${{ secrets.DB_P }}
+          DB_NAME: ${{ secrets.DB_N }}
+          JWT_SECRET: ${{ secrets.JWT_S }}
         with:
           command: up
           stack-name: dev
