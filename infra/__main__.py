@@ -90,7 +90,8 @@ def main():
             layers=[lambda_layer.arn],
             environment=aws.lambda_.FunctionEnvironmentArgs(
                 variables=ENV
-            )
+            ),
+            timeout=10
         )
         lambdas[name] = func.arn
 
