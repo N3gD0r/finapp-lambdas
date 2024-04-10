@@ -87,6 +87,7 @@ jobs:
         run: |
           bucket=${{ secrets.S3_BUCKET }}
           version_id=${{ steps.check_object_version.outputs.S3_OBJECT_V }}
+          echo "$version_id"
           temp_file=$(mktemp)
 
           aws s3api get-object \
