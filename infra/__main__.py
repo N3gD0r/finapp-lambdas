@@ -93,7 +93,7 @@ def main():
             ),
             timeout=10
         )
-        lambdas[name] = func.arn
+        lambdas[name] = func.invoke_arn
 
     pulumi.export("lambdas", lambdas)
     pulumi.export("layer", lambda_layer.arn)
