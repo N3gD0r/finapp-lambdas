@@ -79,6 +79,7 @@ jobs:
       - name: Pulumi outputs
         run: |
           echo "lambdas: ${{ steps.pulumi.outputs.lambdas}}"
+          echo "lambda_arns: ${{ steps.pulumi.outputs.lambda_arns}}"
           echo "lambda layer: ${{ steps.pulumi.outputs.layer}}"
           echo "lambdas role: ${{ steps.pulumi.outputs.role}}"
 
