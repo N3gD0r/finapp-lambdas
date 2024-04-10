@@ -78,8 +78,6 @@ jobs:
             --version-id  "$version_id" \
             "$temp_file" >/dev/null 2>&1
 
-          ls -lh "$temp_file" python.zip
-
           destination_md5=$(md5sum "$temp_file" | awk '{ print $1 }')
           rm "$temp_file"
           echo "REMOTE_OBJ=$destination_md5" >> "$GITHUB_OUTPUT"
