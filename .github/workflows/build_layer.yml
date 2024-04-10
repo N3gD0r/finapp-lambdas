@@ -28,6 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           cp -r .venv/lib/python3.12/site-packages python
+          echo "Layer structure:"
           ls -h python
           rm -rf python/pip*
           zip -r python.zip python >/dev/null
@@ -94,11 +95,10 @@ jobs:
           echo "remote_layer_md5: $destination_md5"
 
           if [ "$source_md5" == "$destination_md5" ]; then
+            echo "CHANGED_OBJ=0" >> "$GITHUB_OUTPUT"
+          else
             echo "CHANGED_OBJ=1" >> "$GITHUB_OUTPUT"
-            exit 0
           fi
-
-          echo "CHANGED_OBJ=0" >> "$GITHUB_OUTPUT"
 
       - id: upload
         name: Upload layer to bucket
