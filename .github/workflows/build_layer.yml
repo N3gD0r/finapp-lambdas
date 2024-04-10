@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get zipcmp
+        run: |
+          sudo apt install zipcmp -y
+
       - uses: actions/checkout@v4
 
       - name: Setup python
@@ -33,10 +37,6 @@ jobs:
           rm -rf python/pip*
           find ./python -type d -name '__pycache__' -exec rm -rf {} +
           zip -r python.zip python >/dev/null
-
-      - name: Get zipcmp
-        run: |
-          sudo apt install zipcmp -y
 
       - name: Setup aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,7 +60,7 @@ jobs:
           echo "LATEST_VERSION=$latest_version" >> "$GITHUB_OUTPUT"
 
       - id: upload
-        name: Upload layer if nothing exists
+        name: Upload layer if does not exists
         if: ${{ steps.version.outputs.LATEST_VERSION == 'null' }}
         run: |
           bucket=${{ secrets.S3_BUCKET }}
@@ -69,7 +69,7 @@ jobs:
           exit 0
 
       - id: check_obj
-        name: Get md5sum from dest bucket
+        name: Compare new layer to remote layer
         if: ${{ steps.version.outputs.LATEST_VERSION != 'null' }}
         run: |
           bucket=${{ secrets.S3_BUCKET }}
@@ -97,7 +97,7 @@ jobs:
           aws s3api put-object --bucket "$bucket" --key 'python.zip' --body python.zip
 
       - id: no_changes
-        name: No need to upload layer
+        name: No changes in layer
         if: ${{ steps.check_obj.outputs.DIFF == '0' }}
         run: |
           echo 'No changes in layer'
