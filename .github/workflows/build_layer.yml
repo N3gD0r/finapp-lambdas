@@ -67,26 +67,33 @@ jobs:
           aws s3api put-bucket-versioning --bucket ${{ secrets.S3_BUCKET }} --versioning-configuration Status=Enabled
 
       - id: check_object_version
+        name: Check for latest version
         run: |
-          latest_version=$(aws s3api list-object-versions --bucket ${{ secrets.S3_BUCKET }} --prefix python.zip --query 'Versions[0].VersionId' --output text 2>/dev/null)
+          bucket=${{ secrets.S3_BUCKET }}
+          latest_version=$(aws s3api list-object-versions --bucket "$bucket" --prefix 'python.zip' --query 'Versions[0].VersionId')
           echo "S3_OBJECT_V=$latest_version" >> "$GITHUB_OUTPUTS"
 
       - id: create_if_not_exists
+        name: Upload layer if nothing exists
         if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} == 'None'
         run: |
+          bucket=${{ secrets.S3_BUCKET }}
           echo "Destination object does not exist. Uploading new version..."
-          aws s3api put-object --bucket ${{ secrets.S3_BUCKET }} --key python.zip --body python.zip
+          aws s3api put-object --bucket "$bucket" --key 'python.zip' --body python.zip
           exit 0
 
       - id: get_obj_sum
+        name: Get md5sum from dest bucket
         if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} != 'None'
         run: |
+          bucket=${{ secrets.S3_BUCKET }}
+          version_id=${{ steps.check_object_version.outputs.S3_OBJECT_V }}
           temp_file=$(mktemp)
 
           aws s3api get-object \
-            --bucket ${{ secrets.S3_BUCKET }} \
-            --key python.zip \
-            --version-id ${{ steps.check_object_version.outputs.S3_OBJECT_V }} \
+            --bucket "$bucket" \
+            --key 'python.zip' \
+            --version-id  "$version_id" \
             "$temp_file"
 
           destination_md5=$(md5sum "$temp_file" | awk '{ print $1 }')
@@ -94,6 +101,7 @@ jobs:
           echo "REMOTE_OBJ=$destination_md5" >> "$GITHUB_OUTPUTS"
 
       - id: compare_objects
+        name: Compare local and remote md5sums
         if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} != 'None'
         run: |
           source_md5=$(md5sum python.zip | awk '{ print $1 }')
@@ -105,11 +113,14 @@ jobs:
           [ "$source_md5" == "$destination_md5" ]; echo "CHANGED_OBJ=$?" >> "$GITHUB_OUTPUTS"
 
       - id: upload
+        name: Upload layer to bucket
         if: ${{ steps.compare_objects.outputs.CHANGED_OBJ }} == 1
         run: |
-          aws s3api put-object --bucket ${{ secrets.S3_BUCKET }} --key python.zip --body python.zip
+          bucket=${{ secrets.S3_BUCKET }}
+          aws s3api put-object --bucket "$bucket" --key 'python.zip' --body python.zip
 
       - id: no_changes
+        name: No need to upload layer
         if: ${{ steps.compare_objects.outputs.CHANGED_OBJ }} == 0
         run: |
           echo 'No changes in layer'
