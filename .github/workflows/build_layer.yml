@@ -67,7 +67,9 @@ jobs:
 
       - name: Create S3 bucket if it does not exist
         run: |
-          aws s3 ls s3://${{ secrets.S3_BUCKET }} >/dev/null 2>&1 || aws s3 mb s3://${{ secrets.S3_BUCKET }} --region us-east-1
+          aws s3 ls s3://${{ secrets.S3_BUCKET }} >/dev/null 2>&1 ||
+          aws s3 mb s3://${{ secrets.S3_BUCKET }} --region ${{ secrets.AWS_REGION }} && \
+          aws s3api put-bucket-versioning --bucket ${{ secrets.S3_BUCKET }} --versioning-configuration Status=Enabled
 
       - name: Upload lambda layer to S3
         run: |
