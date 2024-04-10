@@ -50,8 +50,6 @@ jobs:
           cp -r venv/lib/python3.12/site-packages python
           rm -rf python/pip*
           zip -r python.zip python >/dev/null 2>&1
-          echo "Lambda layer contents"
-          unzip -l python.zip
 
       - name: Setup aws
         uses: aws-actions/configure-aws-credentials@v4
@@ -70,12 +68,12 @@ jobs:
         name: Check for latest version
         run: |
           bucket=${{ secrets.S3_BUCKET }}
-          latest_version=$(aws s3api list-object-versions --bucket "$bucket" --prefix 'python.zip' --query 'Versions[0].VersionId')
+          latest_version=$(aws s3api list-object-versions --bucket "$bucket" --prefix 'python.zip' --query 'Versions[0].VersionId' 2>/dev/null)
           echo "S3_OBJECT_V=$latest_version" >> "$GITHUB_OUTPUT"
 
       - id: create_if_not_exists
         name: Upload layer if nothing exists
-        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} == 'None'
+        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V == 'None' }}
         run: |
           bucket=${{ secrets.S3_BUCKET }}
           echo "Destination object does not exist. Uploading new version..."
@@ -84,7 +82,7 @@ jobs:
 
       - id: get_obj_sum
         name: Get md5sum from dest bucket
-        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} != 'None'
+        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V != 'None' }}
         run: |
           bucket=${{ secrets.S3_BUCKET }}
           version_id=${{ steps.check_object_version.outputs.S3_OBJECT_V }}
@@ -102,7 +100,7 @@ jobs:
 
       - id: compare_objects
         name: Compare local and remote md5sums
-        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V }} != 'None'
+        if: ${{ steps.check_object_version.outputs.S3_OBJECT_V != 'None' }}
         run: |
           source_md5=$(md5sum python.zip | awk '{ print $1 }')
           destination_md5=${{ steps.get_obj_sum.outputs.REMOTE_OBJ }}
@@ -114,14 +112,14 @@ jobs:
 
       - id: upload
         name: Upload layer to bucket
-        if: ${{ steps.compare_objects.outputs.CHANGED_OBJ }} == 1
+        if: ${{ steps.compare_objects.outputs.CHANGED_OBJ == '1' }}
         run: |
           bucket=${{ secrets.S3_BUCKET }}
           aws s3api put-object --bucket "$bucket" --key 'python.zip' --body python.zip
 
       - id: no_changes
         name: No need to upload layer
-        if: ${{ steps.compare_objects.outputs.CHANGED_OBJ }} == 0
+        if: ${{ steps.compare_objects.outputs.CHANGED_OBJ == '0' }}
         run: |
           echo 'No changes in layer'
           exit 0
