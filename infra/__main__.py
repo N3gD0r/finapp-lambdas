@@ -77,6 +77,7 @@ def main():
     )
 
     lambdas = {}
+    lambda_arns = {}
     for script in SCRIPTS:
         name = script[3:-3]
         lambda_code = pulumi.FileAsset(path=script)
@@ -94,9 +95,10 @@ def main():
             timeout=10,
         )
         lambdas[name] = func.invoke_arn
-        lambdas[f"{name}_arn"] = func.arn
+        lambda_arns[f"{name}_arn"] = func.arn
 
     pulumi.export("lambdas", lambdas)
+    pulumi.export("lambda_arns", lambda_arns)
     pulumi.export("layer", lambda_layer.arn)
     pulumi.export("role", role.arn)
 
