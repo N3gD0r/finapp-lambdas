@@ -43,11 +43,12 @@ jobs:
         name: Get bucket
         run: |
           set -e
-          object_info=$(aws s3api list-object-versions --bucket ai-budget-bucket-layer --query 'Versions[?IsLatest].[Key, VersionId]' --output text)
-          while IFS=$"\t" read -r key version_id; do
+          object_info=$(aws s3api list-object-versions --bucket ${{ secrets.S3_BUCKET }} --query 'Versions[?IsLatest].[Key, VersionId]' --output text)
+          while IFS=$'\t' read -r key version_id; do
             echo "bucket_object=$key" >> "$GITHUB_OUTPUT"
             echo "bucket_object_version=$version_id" >> "$GITHUB_OUTPUT"
           done <<< "$object_info"
+          echo "$object_info"
 
       - name: Install deps
         run: |
