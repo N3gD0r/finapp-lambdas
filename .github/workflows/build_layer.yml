@@ -69,6 +69,7 @@ jobs:
         run: |
           bucket=${{ secrets.S3_BUCKET }}
           latest_version=$(aws s3api list-object-versions --bucket "$bucket" --prefix 'python.zip' --query 'Versions[0].VersionId' 2>/dev/null)
+          echo "$latest_version"
           echo "S3_OBJECT_V=$latest_version" >> "$GITHUB_OUTPUT"
 
       - id: create_if_not_exists
