@@ -1,4 +1,0 @@
-bcrypt
-jwt
-pymysql
-cryptography
