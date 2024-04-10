@@ -75,7 +75,6 @@ jobs:
           command: up
           stack-name: dev
           work-dir: ./infra/
-          diff: true
 
       - name: Pulumi outputs
         run: |

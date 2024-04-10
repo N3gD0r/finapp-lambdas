@@ -91,9 +91,10 @@ def main():
             environment=aws.lambda_.FunctionEnvironmentArgs(
                 variables=ENV
             ),
-            timeout=10
+            timeout=10,
         )
         lambdas[name] = func.invoke_arn
+        lambdas[f"{name}_arn"] = func.arn
 
     pulumi.export("lambdas", lambdas)
     pulumi.export("layer", lambda_layer.arn)
