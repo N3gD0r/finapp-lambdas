@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - feat-pulumi-lambdas
+      - main
 
 jobs:
   build:
