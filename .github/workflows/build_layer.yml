@@ -68,5 +68,5 @@ jobs:
 
       - name: Upload lambda layer to S3
         run: |
-          aws s3 cp python.zip s3://${{ secrets.S3_BUCKET }}/python.zip
+          aws s3 sync python.zip s3://${{ secrets.S3_BUCKET }}/
 
