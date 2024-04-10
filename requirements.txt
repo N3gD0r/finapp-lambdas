@@ -2,4 +2,3 @@ pymysql
 cryptography
 PyJWT
 bcrypt
-boto3
