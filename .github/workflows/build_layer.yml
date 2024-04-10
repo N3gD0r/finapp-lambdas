@@ -5,12 +5,6 @@ on:
   push:
     branches:
       - feat-pulumi-lambdas
-    paths:
-      - "entities/**"
-      - "persistence/**"
-      - "load_secrets/**"
-      - ".github/**"
-      - "infra/**"
 
 jobs:
   build:

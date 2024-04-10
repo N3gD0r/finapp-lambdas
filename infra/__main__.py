@@ -72,6 +72,7 @@ def main():
         compatible_architectures=["x86_64"],
         s3_bucket=S3_BUCKET,
         s3_key=S3_KEY,
+        s3_object_version=S3_KEY_VERSION,
         skip_destroy=False
     )
 
