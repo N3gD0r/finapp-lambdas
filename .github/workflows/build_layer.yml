@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Setup python
         uses: actions/setup-python@v5
@@ -23,33 +21,16 @@ jobs:
           cache: 'pip'
           cache-dependency-path: '**/requirements.txt'
 
-      - name: Build entities layer
-        run: |
-          python -m pip install -r entities/requirements.txt
-          python -m build entities
-
-      - name: Build persistence layer
-        run: |
-          python -m pip install -r persistence/requirements.txt
-          python -m build persistence
-
-      - name: Build secrets layer
-        run: |
-          python -m pip install -r load_secrets/requirements.txt
-          python -m build load_secrets
-
       - name: Build lambda layer
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install entities/dist/*.tar.gz
-          python -m pip install persistence/dist/*.tar.gz
-          python -m pip install load_secrets/dist/*.tar.gz
-          cp -r venv/lib/python3.12/site-packages python
+          cp -r .venv/lib/python3.12/site-packages python
+          ls -h python
           rm -rf python/pip*
-          zip -r python.zip python >/dev/null 2>&1
+          zip -r python.zip python >/dev/null
 
       - name: Setup aws
         uses: aws-actions/configure-aws-credentials@v4

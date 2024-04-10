@@ -2,3 +2,7 @@ pymysql
 cryptography
 PyJWT
 bcrypt
+expenses_entities@git+https://github.com/N3gD0r/expenses_entities.git
+expenses_persistence@git+https://github.com/N3gD0r/expenses_persistence.git
+load_secrets@git+https://github.com/N3gD0r/load_secrets.git
+
