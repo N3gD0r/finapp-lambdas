@@ -1,4 +1,4 @@
-name: Build lambda layer from git submodules python packages
+name: Build_layer
 
 on:
   workflow_dispatch:
@@ -9,6 +9,8 @@ on:
       - "entities/**"
       - "persistence/**"
       - "load_secrets/**"
+      - ".github/**"
+      - "infra/**"
 
 jobs:
   build:

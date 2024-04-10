@@ -1,16 +1,27 @@
-name: Deploy each lambda to AWS
+name: Deploy_lambdas
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "feat-pulumi-lambdas"
-    paths:
-      - "**/*.py"
+  workflow_run:
+    workflows:
+      - Build_layer
+    types:
+      - completed
 
 jobs:
+  fail:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Layer workflow failed
+        run: |
+          echo "Build_layer workflow failed" 1>&2
+          exit 1
+
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     steps:
       - uses: actions/checkout@v4
 
