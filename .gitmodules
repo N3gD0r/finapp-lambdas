@@ -1,0 +1,12 @@
+[submodule "persistence"]
+	path = persistence
+	url = git@github.com:N3gD0r/expenses_persistence.git
+	branch = main
+[submodule "entities"]
+	path = entities
+	url = git@github.com:N3gD0r/expenses_entities.git
+	branch = main
+[submodule "load_secrets"]
+	path = load_secrets
+	url = git@github.com:N3gD0r/load_secrets.git
+	branch = main

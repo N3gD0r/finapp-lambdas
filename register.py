@@ -1,4 +1,4 @@
-from load_secrets import get_secrets
+from load_secrets import get_env
 from expenses_entities import User
 from expenses_persistence import UserRepositoryImplementation
 from pymysql import MySQLError
@@ -10,8 +10,7 @@ import os
 
 
 def handler(event, context):
-    secret_name = os.environ['SECRETS_NAME']
-    secrets = get_secrets(secret_name)
+    secrets = get_env()
     db_name = 'expenses'
     db_host = secrets.get('db_host')
     db_port = secrets.get('db_port')

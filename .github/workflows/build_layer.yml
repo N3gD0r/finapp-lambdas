@@ -1,0 +1,72 @@
+name: Build_layer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat-pulumi-lambdas
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
+
+      - name: Build entities layer
+        run: |
+          python -m pip install -r entities/requirements.txt
+          python -m build entities
+
+      - name: Build persistence layer
+        run: |
+          python -m pip install -r persistence/requirements.txt
+          python -m build persistence
+
+      - name: Build secrets layer
+        run: |
+          python -m pip install -r load_secrets/requirements.txt
+          python -m build load_secrets
+
+      - name: Build lambda layer
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install entities/dist/*.tar.gz
+          python -m pip install persistence/dist/*.tar.gz
+          python -m pip install load_secrets/dist/*.tar.gz
+          cp -r venv/lib/python3.12/site-packages python
+          rm -rf python/pip*
+          zip -r python.zip python >/dev/null 2>&1
+          echo "Lambda layer contents"
+          unzip -l python.zip
+
+      - name: Setup aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create S3 bucket if it does not exist
+        run: |
+          aws s3 ls s3://${{ secrets.S3_BUCKET }} >/dev/null 2>&1 ||
+          aws s3 mb s3://${{ secrets.S3_BUCKET }} --region ${{ secrets.AWS_REGION }} && \
+          aws s3api put-bucket-versioning --bucket ${{ secrets.S3_BUCKET }} --versioning-configuration Status=Enabled
+
+      - name: Upload lambda layer to S3
+        run: |
+          aws s3 cp python.zip s3://${{ secrets.S3_BUCKET }}/python.zip
+

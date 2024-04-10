@@ -1,0 +1,86 @@
+name: Deploy_lambdas
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Build_layer
+    types:
+      - completed
+
+jobs:
+  fail:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Layer workflow failed
+        run: |
+          echo "Build_layer workflow failed" 1>&2
+          exit 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'infra/requirements.txt'
+
+      - name: Setup aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - id: get_bucket
+        name: Get bucket
+        run: |
+          set -e
+          object_info=$(aws s3api list-object-versions --bucket ${{ secrets.S3_BUCKET }} --query 'Versions[?IsLatest].[Key, VersionId]' --output text)
+          while IFS=$'\t' read -r key version_id; do
+            echo "bucket_object=$key" >> "$GITHUB_OUTPUT"
+            echo "bucket_object_version=$version_id" >> "$GITHUB_OUTPUT"
+          done <<< "$object_info"
+          echo "$object_info"
+
+      - name: Install deps
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r infra/requirements.txt
+
+      - id: pulumi
+        name: Pulumi up
+        uses: pulumi/actions@v5
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
+          BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_KEY: ${{ steps.get_bucket.outputs.bucket_object }}
+          S3_KEY_VERSION: ${{ steps.get_bucket.outputs.bucket_object_version }}
+          DB_USER: ${{ secrets.DBU }}
+          DB_PASSWORD: ${{ secrets.DBP }}
+          DB_HOST: ${{ secrets.DB_H }}
+          DB_PORT: ${{ secrets.DB_P }}
+          DB_NAME: ${{ secrets.DB_N }}
+          JWT_SECRET: ${{ secrets.JWT_S }}
+        with:
+          command: up
+          stack-name: dev
+          work-dir: ./infra/
+          diff: true
+
+      - name: Pulumi outputs
+        run: |
+          echo "Lambdas:"
+          echo "${{ steps.pulumi.outputs.lambdas}}"
+          echo "${{ steps.pulumi.outputs.layer}}"
+          echo "${{ steps.pulumi.outputs.role}}"
+
