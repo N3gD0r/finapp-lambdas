@@ -79,7 +79,7 @@ def main():
 
     lambdas = {}
     for script in SCRIPTS:
-        name = script[:-3]
+        name = script[3:-3]
         lambda_code = pulumi.FileAsset(path=script)
         func = aws.lambda_.Function(
             resource_name=f"lambda-{name}",
