@@ -30,7 +30,7 @@ jobs:
           cp -r .venv/lib/python3.12/site-packages python
           echo "Layer structure:"
           ls -h python
-          rm -rf python/pip*
+          rm -rf python/pip* python/**/__pycache__
           zip -r python.zip python >/dev/null
 
       - name: Setup aws
