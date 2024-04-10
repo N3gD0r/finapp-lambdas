@@ -43,8 +43,11 @@ jobs:
         name: Get bucket
         run: |
           set -e
-          bucket_key=$(aws s3api list-objects-v2 --bucket ai-budget-bucket-layer --query 'Contents[].[Key]' --output text)
-          echo "bucket_object=$bucket_key" >> "$GITHUB_OUTPUT"
+          object_info=$(aws s3api list-object-versions --bucket ai-budget-bucket-layer --query 'Versions[?IsLatest].[Key, VersionId]' --output text)
+          while IFS=$"\t" read -r key version_id; do
+            echo "bucket_object=$key" >> "$GITHUB_OUTPUT"
+            echo "bucket_object_version=$version_id" >> "$GITHUB_OUTPUT"
+          done <<< "$object_info"
 
       - name: Install deps
         run: |
@@ -59,7 +62,8 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           BUCKET: ${{ secrets.S3_BUCKET }}
-          S3_KEY: ${{ steps.get_bucket.outputs.bucket_object}}
+          S3_KEY: ${{ steps.get_bucket.outputs.bucket_object }}
+          S3_KEY_VERSION: ${{ steps.get_bucket.outputs.bucket_object_version }}
           DB_USER: ${{ secrets.DBU }}
           DB_PASSWORD: ${{ secrets.DBP }}
           DB_HOST: ${{ secrets.DB_H }}

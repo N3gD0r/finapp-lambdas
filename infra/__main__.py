@@ -18,7 +18,6 @@ SCRIPTS = [
     "../register.py",
     "../login.py"
 ]
-
 ENV = {
     "DB_USER": os.getenv("DB_USER"),
     "DB_PASSWORD": os.getenv("DB_PASSWORD"),
@@ -27,10 +26,9 @@ ENV = {
     "DB_NAME": os.getenv("DB_NAME"),
     "JWT_SECRET": os.getenv("JWT_SECRET")
 }
-
 S3_BUCKET = os.getenv("BUCKET")
-
 S3_KEY = os.getenv('S3_KEY')
+S3_KEY_VERSION = os.getenv('S3_KEY_VERSION')
 
 
 def main():
