@@ -18,6 +18,20 @@ SCRIPTS = [
     "../register.py",
     "../login.py"
 ]
+METHODS = {
+    "get_expenses_arn": 'GET/expenses',
+    "post_expense_arn": 'POST/expenses',
+    "get_expense_arn": 'GET/expenses/*',
+    "delete_expense_arn": 'DELETE/expenses/*',
+    "update_expense_arn": 'PUT/expenses/*',
+    "get_categories_arn": 'GET/expense_categories',
+    "get_category_arn": 'GET/expense_categories/*',
+    "get_chat_history_arn": 'GET/chat_history',
+    "delete_chats_arn": 'DELETE/chat_history',
+    "post_chat_history_arn": 'POST/chat_history',
+    "register_arn": 'POST/register',
+    "login_arn": 'POST/login'
+}
 ENV = {
     "DB_USER": os.getenv("DB_USER"),
     "DB_PASSWORD": os.getenv("DB_PASSWORD"),
@@ -101,6 +115,7 @@ def main():
     pulumi.export("lambda_arns", lambda_arns)
     pulumi.export("layer", lambda_layer.arn)
     pulumi.export("role", role.arn)
+    pulumi.export("methods", METHODS)
 
     return lambdas, lambda_layer, role
 
