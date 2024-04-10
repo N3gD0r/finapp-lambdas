@@ -52,8 +52,8 @@ jobs:
 
       - name: Install deps
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
+          python -m venv ./infra/.venv
+          source ./infra/.venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -r infra/requirements.txt
 
@@ -78,8 +78,7 @@ jobs:
 
       - name: Pulumi outputs
         run: |
-          echo "Lambdas:"
-          echo "${{ steps.pulumi.outputs.lambdas}}"
-          echo "${{ steps.pulumi.outputs.layer}}"
-          echo "${{ steps.pulumi.outputs.role}}"
+          echo "lambdas: ${{ steps.pulumi.outputs.lambdas}}"
+          echo "lambda layer: ${{ steps.pulumi.outputs.layer}}"
+          echo "lambdas role: ${{ steps.pulumi.outputs.role}}"
 
