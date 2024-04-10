@@ -5,18 +5,18 @@ import pulumi_aws as aws
 
 
 SCRIPTS = [
-    "../get_expenses.py",
-    "../get_expense.py",
-    "../get_chat_history.py",
-    "../get_categories.py",
-    "../get_category.py",
-    "../update_expense.py",
-    "../delete_expense.py",
-    "../delete_chats.py",
-    "../post_expense.py",
-    "../post_chat_history.py",
-    "../register.py",
-    "../login.py"
+    "./get_expenses.py",
+    "./get_expense.py",
+    "./get_chat_history.py",
+    "./get_categories.py",
+    "./get_category.py",
+    "./update_expense.py",
+    "./delete_expense.py",
+    "./delete_chats.py",
+    "./post_expense.py",
+    "./post_chat_history.py",
+    "./register.py",
+    "./login.py"
 ]
 
 ENV = {
@@ -80,13 +80,14 @@ def main():
     lambdas = {}
     for script in SCRIPTS:
         name = script[:-3]
+        lambda_code = pulumi.FileAsset(path=script)
         func = aws.lambda_.Function(
             resource_name=f"lambda-{name}",
             name=name,
             runtime="python3.12",
             handler=f"{name}.handler",
             role=role.arn,
-            code=pulumi.FileArchive(script),
+            code=pulumi.AssetArchive(assets={script: lambda_code}),
             layers=[lambda_layer.arn],
             environment=aws.lambda_.FunctionEnvironmentArgs(
                 variables=ENV
