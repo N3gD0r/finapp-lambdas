@@ -5,18 +5,18 @@ import pulumi_aws as aws
 
 
 SCRIPTS = [
-    "./get_expenses.py",
-    "./get_expense.py",
-    "./get_chat_history.py",
-    "./get_categories.py",
-    "./get_category.py",
-    "./update_expense.py",
-    "./delete_expense.py",
-    "./delete_chats.py",
-    "./post_expense.py",
-    "./post_chat_history.py",
-    "./register.py",
-    "./login.py"
+    "../get_expenses.py",
+    "../get_expense.py",
+    "../get_chat_history.py",
+    "../get_categories.py",
+    "../get_category.py",
+    "../update_expense.py",
+    "../delete_expense.py",
+    "../delete_chats.py",
+    "../post_expense.py",
+    "../post_chat_history.py",
+    "../register.py",
+    "../login.py"
 ]
 
 ENV = {
