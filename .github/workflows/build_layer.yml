@@ -92,7 +92,9 @@ jobs:
             --bucket "$bucket" \
             --key 'python.zip' \
             --version-id  "$version_id" \
-            "$temp_file"
+            "$temp_file" >/dev/null 2>&1
+
+          ls -lh "$temp_file" python.zip
 
           destination_md5=$(md5sum "$temp_file" | awk '{ print $1 }')
           rm "$temp_file"
@@ -108,7 +110,12 @@ jobs:
           echo "new_layer_md5: $source_md5"
           echo "remote_layer_md5: $destination_md5"
 
-          [ "$source_md5" == "$destination_md5" ]; echo "CHANGED_OBJ=$?" >> "$GITHUB_OUTPUT"
+          if [ "$source_md5" == "$destination_md5" ]; then
+            echo "CHANGED_OBJ=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "CHANGED_OBJ=0" >> "$GITHUB_OUTPUT"
 
       - id: upload
         name: Upload layer to bucket
